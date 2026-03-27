@@ -1,0 +1,574 @@
+<html lang="zh-CN"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>销售访谈 - 客户第一的实践</title>
+    <!-- Tailwind CSS v3 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <!-- AOS - Animate On Scroll -->
+    <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#2A3B47',
+                        secondary: '#508B87',
+                        accent: '#FF6B6B',
+                        light: '#F9F9F9',
+                        dark: '#333333'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'custom': '0 4px 20px rgba(0, 0, 0, 0.08)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .text-shadow {
+                text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            }
+            .transition-custom {
+                transition: all 0.3s ease;
+            }
+            .bg-glass {
+                background: rgba(255, 255, 255, 0.9);
+                backdrop-filter: blur(10px);
+                -webkit-backdrop-filter: blur(10px);
+            }
+        }
+        
+        /* 自定义滚动条 */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #508B87;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #2A3B47;
+        }
+        
+        /* 平滑滚动 */
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        /* 问答卡片展开动画 */
+        .answer-card {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease;
+        }
+        
+        /* 脉冲动画效果 */
+        @keyframes pulse {
+            0% {
+                transform: translateY(-50%) scale(1);
+                opacity: 0.7;
+            }
+            50% {
+                transform: translateY(-50%) scale(1.1);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-50%) scale(1);
+                opacity: 0.7;
+            }
+        }
+        
+        .pulse-animation {
+            animation: pulse 2s infinite;
+        }
+        
+        .answer-card.active {
+            max-height: 1000px;
+        }
+        
+        /* 导航指示器动画 */
+        .nav-indicator {
+            transition: transform 0.3s ease;
+        }
+        
+        /* 背景图案 */
+        .bg-pattern {
+            background-color: #f9f9f9;
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23508b87' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+    </style>
+</head>
+<body><audio id="bgm" loop="" playsinline="" webkit-playsinline="">
+  <source src="https://videotourl.com/audio/1774494663145-caa0b4dd-3765-4a8f-8fb0-17a6980ae2a1.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+// 手机/电脑通用：点一下页面就播放背景音乐
+document.addEventListener('click', function() {
+  let audio = document.getElementById('bgm');
+  audio.play().catch(err => console.log('播放',err));
+}, { once: true });
+</script>
+    <!-- 导航栏 -->
+    <header class="fixed top-0 left-0 right-0 z-50 bg-glass border-b border-gray-200">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <img src="https://p26-flow-imagex-download-sign.byteimg.com/tos-cn-i-a9rns2rl98/81cd8bc5300147e1beddbf0a2ad6a3c5.png~tplv-a9rns2rl98-24:720:720.png?lk3s=8e244e95&amp;rcl=20260316115839CC7C131E6338C0E05D79&amp;rrcfp=8a172a1a&amp;x-expires=1774238320&amp;x-signature=h6DPKdrpNk%2BCdO8ym9QMsRrwl5Y%3D" alt="公司Logo" class="h-10">
+                <h1 class="text-xl font-bold text-primary">客户第一，落地有声</h1>
+            </div>
+            <nav class="hidden md:flex space-x-8">
+                <a href="#intro" class="nav-link text-primary hover:text-secondary transition-custom">主页</a>
+                <a href="#icebreaker" class="nav-link text-primary hover:text-secondary transition-custom">个人介绍</a>
+                <a href="#deep-dive" class="nav-link text-primary hover:text-secondary transition-custom">历程回顾</a>
+                <a href="#conclusion" class="nav-link text-primary hover:text-secondary transition-custom">总结</a>
+            </nav>
+            <button class="md:hidden text-primary focus:outline-none" id="mobile-menu-button">
+                <i class="fa fa-bars text-xl"></i>
+            </button>
+        </div>
+        <!-- 移动端菜单 -->
+        <div class="md:hidden hidden bg-white border-t border-gray-200" id="mobile-menu">
+            <div class="container mx-auto px-4 py-2 flex flex-col space-y-2">
+                <a href="#intro" class="py-2 text-primary hover:text-secondary transition-custom">主页</a>
+                <a href="#icebreaker" class="py-2 text-primary hover:text-secondary transition-custom">个人介绍</a>
+                <a href="#deep-dive" class="py-2 text-primary hover:text-secondary transition-custom">历程回顾</a>
+                <a href="#conclusion" class="py-2 text-primary hover:text-secondary transition-custom">总结</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- 主内容区 -->
+    <main class="container mx-auto px-4 pt-24 pb-16">
+        <!-- 简介部分 -->
+        <section id="intro" class="my-24 min-h-[70vh] flex items-center" data-aos="fade-up" data-aos-duration="1000">
+            <div class="max-w-3xl mx-auto text-center">
+                <h2 class="text-4xl md:text-5xl font-bold text-primary mb-6 text-shadow">一个人的讲标，一群人的坚守</h2>
+                <p class="text-lg text-gray-600 mb-8">
+                    这是一段关于<strong>销售专业人士Angel</strong>的访谈记录。<br>
+                    她在分享中讲述了在华东区销售工作中，如何将"<span class="font-bold text-secondary" style="color: rgb(161, 43, 43);">客户第一</span>"的理念落到实处，
+                    并通过<strong style="color: rgb(75, 85, 99); font-weight: normal;">真诚的服务态度</strong>和<strong style="color: rgb(75, 85, 99); font-weight: normal;">紧密的团队协作</strong>，逐步<strong style="color: rgb(75, 85, 99); font-weight: normal;">赢得客户信任</strong>的经历。
+                </p>
+                <div class="flex justify-center">
+                    <a href="#icebreaker" class="bg-secondary hover:bg-primary text-white font-medium py-3 px-6 rounded-lg shadow-md transition-custom flex items-center">
+                        开始阅读 <i class="fa fa-arrow-down ml-2"></i>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- 个人介绍部分 -->
+        <section id="icebreaker" class="mb-20">
+            <div class="max-w-5xl mx-auto">
+                <h2 class="text-3xl font-bold text-primary mb-8 border-l-4 border-secondary pl-4">个人介绍</h2>
+                
+                <div class="grid md:grid-cols-2 gap-8">
+                    <!-- 左侧：微信气泡对话 -->
+                    <div class="bg-white rounded-lg shadow-custom p-6">
+                        <div class="chat-container">
+                            <!-- 问题1 -->
+                            <div class="chat-message mb-4">
+                                <div class="question-bubble cursor-pointer relative max-w-[80%] bg-gray-100 rounded-lg p-4 shadow-sm hover:bg-gray-200 transition-custom">
+                                    <div class="absolute -right-2 top-1/2 transform -translate-y-1/2 bg-gray-100 w-6 h-6 rounded-full flex items-center justify-center shadow-sm pulse-animation">
+                                        <i class="fa fa-chevron-right text-xs text-secondary"></i>
+                                    </div>
+                                    <p class="text-gray-800">1️⃣ 先简单介绍一下你的岗位吧，目前主要负责哪些客户或区域呢？</p>
+                                    
+                                </div>
+                                <div class="answer-bubble hidden mt-2 relative max-w-[80%] ml-auto bg-secondary rounded-lg p-4 text-white shadow-sm">
+                                    <p style="font-weight: normal;">我目前主要负责<strong style="font-style: normal; text-decoration: none; font-weight: bold;">华东区域</strong>的销售工作，面向区域内的各类客户。</p>
+                                </div>
+                            </div>
+                            
+                            <!-- 问题2 -->
+                            <div class="chat-message mb-4">
+                                <div class="question-bubble cursor-pointer relative max-w-[80%] bg-gray-100 rounded-lg p-4 shadow-sm hover:bg-gray-200 transition-custom">
+                                    <div class="absolute -right-2 top-1/2 transform -translate-y-1/2 bg-gray-100 w-6 h-6 rounded-full flex items-center justify-center shadow-sm pulse-animation">
+                                        <i class="fa fa-chevron-right text-xs text-secondary"></i>
+                                    </div>
+                                    <p class="text-gray-800">2️⃣ 你平时主要通过什么方式和客户打交道？</p>
+                                    
+                                </div>
+                                <div class="answer-bubble hidden mt-2 relative max-w-[80%] ml-auto bg-secondary rounded-lg p-4 text-white shadow-sm">
+                                    <p>方式还挺多样的，包括<strong style="text-decoration: none; font-weight: bold;">电话开拓</strong>、<strong style="text-decoration: none; font-weight: bold; font-style: normal;">朋友介绍</strong>、以及<strong style="text-decoration: none; font-weight: bold;">现有客户的推荐</strong>。同时，公司<strong style="font-weight: bold; text-decoration: none; font-style: normal;">市场部门</strong>提供的信息也是我获取新客户资源的重要渠道。</p>
+                                </div>
+                            </div>
+                            
+                            <!-- 问题3 -->
+                            <div class="chat-message mb-4">
+                                <div class="question-bubble cursor-pointer relative max-w-[80%] bg-gray-100 rounded-lg p-4 shadow-sm hover:bg-gray-200 transition-custom">
+                                    <div class="absolute -right-2 top-1/2 transform -translate-y-1/2 bg-gray-100 w-6 h-6 rounded-full flex items-center justify-center shadow-sm pulse-animation">
+                                        <i class="fa fa-chevron-right text-xs text-secondary"></i>
+                                    </div>
+                                    <p class="text-gray-800">3️⃣ 站在销售的角度，你觉得我们公司"客户第一"的文化，落到你每天的工作里，具体意味着什么呢？</p>
+                                    
+                                </div>
+                                <div class="answer-bubble hidden mt-2 relative max-w-[80%] ml-auto bg-secondary rounded-lg p-4 text-white shadow-sm">
+                                    <p style="font-weight: normal;">对我来说，"客户第一"意味着<strong style="text-decoration: none; font-weight: bold;">在工作中真正站在客户的角度去思考</strong>。具体来说，就是要及时响应他们反馈的问题，尽力帮他们解决实际困难；同时，在适当的时候也要发挥引导作用，帮助客户理清需求。当然，在这个过程中，平衡好客户利益和公司利益也是非常关键的一点。</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 右侧：预留照片位置 -->
+                    <div class="bg-white rounded-lg shadow-custom p-6 flex flex-col items-center justify-center">
+                        <div class="w-full max-w-xs aspect-square rounded-lg overflow-hidden mb-4 shadow-lg">
+                            <img src="https://p3-flow-imagex-download-sign.byteimg.com/tos-cn-i-a9rns2rl98/8c9e12d60bbd427e89e2cf9f07d78e35.jpg~tplv-a9rns2rl98-24:720:720.jpg?lk3s=8e244e95&amp;rcl=20260317124443285B8C2565565D710F00&amp;rrcfp=8a172a1a&amp;x-expires=1774327483&amp;x-signature=7iIfOY373FnX6Od4Xk8IJp2%2FM%2BA%3D" alt="Angel的个人照片" class="w-full h-full object-cover hover:scale-105 transition-all duration-300">
+                        </div>
+                        <div class="text-center">
+                            <h3 class="text-xl font-semibold text-primary mb-2">Angel</h3>
+                            <p class="text-gray-600">华东区销售负责人</p>
+                            <div class="mt-4 flex justify-center space-x-2">
+                                <span class="bg-secondary bg-opacity-10 text-secondary px-3 py-1 rounded-full text-sm" style="font-weight: bold;">客户第一</span>
+                                <span class="bg-secondary bg-opacity-10 text-secondary px-3 py-1 rounded-full text-sm" style="font-weight: bold;">专业服务</span>
+                                <span class="bg-secondary bg-opacity-10 text-secondary px-3 py-1 rounded-full text-sm" style="font-weight: bold;">团队协作</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 历程回顾部分 -->
+        <section id="deep-dive" class="mb-20">
+            <div class="max-w-5xl mx-auto">
+                <h2 class="text-3xl font-bold text-primary mb-8 border-l-4 border-secondary pl-4">历程回顾</h2>
+                <p class="text-gray-600 mb-8">
+                    如何真正站在客户角度解决问题，赢得长期信任
+                </p>
+                
+                <!-- 问题1 -->
+                <div class="mb-6 reveal-on-scroll">
+                    <div class="bg-white rounded-lg shadow-custom p-6 opacity-0 transform translate-y-4 transition-all duration-700">
+                        <div class="mb-4">
+                            <h3 class="text-xl font-semibold text-primary" style="color: rgb(42, 59, 71);">✨ Q1：在和客户打交道的过程中，有没有哪一个客户/哪一次经历让你印象特别深刻？</h3>
+                        </div>
+                        <div class="pt-4 border-t border-gray-100">
+                            <p class="text-gray-700 mb-4">说起印象深刻，2014年的<span class="font-bold text-secondary" style="color: rgb(148, 24, 24); font-weight: bold;">贝因美项目</span>至今让我难忘。当时客户已经有一套使用多年的导购管理系统，因为系统无法扩展才决定寻找新供应商。我从一开始接触客户高层、负责方案介绍，到后面进入招标环节，全程深度参与。</p>
+                            <p class="text-gray-700 mb-4">
+                                当时有一个<span class="font-bold" style="color: rgb(148, 24, 24);">突发状况</span>：正式招标讲标的时间很紧，和我们配合的武汉项目团队买不到机票赶到现场，上海这边也没有其他人员能支持。最后我只能一个人面对台下15-16位客户高层，独立完成了方案介绍、系统演示，武汉团队则远程支持回答提问。整个讲标持续了近3个小时。
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 问题2 -->
+                <div class="mb-6 reveal-on-scroll">
+                    <div class="bg-white rounded-lg shadow-custom p-6 opacity-0 transform translate-y-4 transition-all duration-700 delay-100">
+                        <div class="mb-4">
+                            <h3 class="text-xl font-semibold text-primary" style="color: rgb(42, 59, 71);">🎖️ Q2：当时你感觉最具有挑战性的点在哪里？</h3>
+                        </div>
+                        <div class="pt-4 border-t border-gray-100">
+                            <p class="text-gray-700">
+                                讲标结束后，我们顺利中标，但挑战才刚刚开始——客户内部仍有不同意见，要求我们在两周内拿出一套可以现场测试的系统。时间极紧，要求极高，几乎是一个不可能的任务。
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 问题3 -->
+                <div class="mb-6 reveal-on-scroll">
+                    <div class="bg-white rounded-lg shadow-custom p-6 opacity-0 transform translate-y-4 transition-all duration-700 delay-200">
+                        <div class="mb-4">
+                            <h3 class="text-xl font-semibold text-primary">🧩 Q3：为了拿下这个客户的信任，你或团队在背后做了哪些"看不见"的努力？</h3>
+                        </div>
+                        <div class="pt-4 border-t border-gray-100">
+                            <div class="grid md:grid-cols-2 gap-4">
+                                <div class="bg-light p-4 rounded-lg">
+                                    <h4 class="font-semibold text-secondary mb-2">中标前:</h4>
+                                    <ul class="list-disc list-inside text-gray-700 space-y-1">
+                                        <li>✍️ 反复调整方案</li>
+                                        <li>💻 精心准备售前环境</li>
+                                        <li>🤝 与客户多个部门反复沟通</li>
+                                    </ul>
+                                </div>
+                                <div class="bg-light p-4 rounded-lg">
+                                    <h4 class="font-semibold text-secondary mb-2">中标后:</h4>
+                                    <ul class="list-disc list-inside text-gray-700 space-y-1">
+                                        <li>🚩 整个项目团队驻场开发</li>
+                                        <li>⌚ 大家几乎放弃了休息时间</li>
+                                        <li>🏷️ 本人也参与到系统测试中，确保每个环节都万无一失</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 问题4 -->
+                <div class="mb-6 reveal-on-scroll">
+                    <div class="bg-white rounded-lg shadow-custom p-6 opacity-0 transform translate-y-4 transition-all duration-700 delay-300">
+                        <div class="mb-4">
+                            <h3 class="text-xl font-semibold text-primary">💡 Q4：在艰苦的奋斗后，有没有哪个瞬间让你觉得挫败到翻盘的转折点到了？</h3>
+                        </div>
+                        <div class="pt-4 border-t border-gray-100">
+                            <p class="text-gray-700">就是当我们如期完成那套测试系统，并得到贝因美CEO亲自测试认可的那一刻；当时所有的辛苦和努力，一下子都值了，也让我们看到了希望。</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 问题5 -->
+                <div class="mb-6 reveal-on-scroll">
+                    <div class="bg-white rounded-lg shadow-custom p-6 opacity-0 transform translate-y-4 transition-all duration-700 delay-400">
+                        <div class="mb-4">
+                            <h3 class="text-xl font-semibold text-primary">🚩 Q5：这件事之后，客户对我们的态度有什么变化？后续合作有因此打开什么新局面吗？</h3>
+                        </div>
+                        <div class="pt-4 border-t border-gray-100">
+                            <p class="text-gray-700 mb-4">变化非常明显——从最初的质疑、不信任，到后来的肯定和表扬。最让我们骄傲的是，贝因美把我们评为2014年唯一的"IT最佳服务供应商"。这个认可，是对整个团队付出的最好回报！💪</p>
+                            <div class="bg-secondary bg-opacity-10 p-4 rounded-lg">
+                                <div class="flex items-center">
+                                    <i class="fa fa-trophy text-accent text-2xl mr-3"></i>
+                                    <p class="text-gray-700 font-medium" style="font-weight: bold; color: rgb(80, 139, 135);">贝因美2014年IT最佳服务供应商</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 问题6 -->
+                <div class="mb-6 reveal-on-scroll">
+                    <div class="bg-white rounded-lg shadow-custom p-6 opacity-0 transform translate-y-4 transition-all duration-700 delay-500">
+                        <div class="mb-4">
+                            <h3 class="text-xl font-semibold text-primary">🌱 Q6：这段经历对你后来的工作方法有什么影响吗？</h3>
+                        </div>
+                        <div class="pt-4 border-t border-gray-100">
+                            <div class="mb-4">
+                                <p class="text-gray-700 mb-4">这段经历让我更坚定了<span style="color: rgb(148, 24, 24); font-weight: bold;">几个原则</span>：坚持、负责、做好每一个细节，始终站在客户的角度去思考问题。</p>
+                                <div class="flex flex-wrap gap-3">
+                                    <span class="bg-primary bg-opacity-10 text-primary px-4 py-2 rounded-full font-medium" style="color: rgb(80, 139, 135); font-weight: bold;">坚持</span>
+                                    <span class="bg-primary bg-opacity-10 text-primary px-4 py-2 rounded-full font-medium" style="color: rgb(80, 139, 135); font-weight: bold;">负责</span>
+                                    <span class="bg-primary bg-opacity-10 text-primary px-4 py-2 rounded-full font-medium" style="color: rgb(80, 139, 135); font-weight: bold;">做好每一个细节</span>
+                                    <span class="bg-primary bg-opacity-10 text-primary px-4 py-2 rounded-full font-medium" style="color: rgb(80, 139, 135); font-weight: bold;">站在客户角度</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 问题7 -->
+                <div class="mb-6 reveal-on-scroll">
+                    <div class="bg-white rounded-lg shadow-custom p-6 opacity-0 transform translate-y-4 transition-all duration-700 delay-600">
+                        <div class="mb-4">
+                            <h3 class="text-xl font-semibold text-primary">👏 Q7：做销售压力肯定不小，在你一路成长的过程中，有没有哪个时刻让你觉得"还好有公司/团队在"？</h3>
+                        </div>
+                        <div class="pt-4 border-t border-gray-100">
+                            <p class="text-gray-700">当然有。像贝因美这样的项目，如果没有强大的团队支撑，单靠销售一个人是根本无法完成的；每个成功客户的交付，都离不开团队伙伴们的付出和坚守。</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 问题8 -->
+                <div class="mb-6 reveal-on-scroll">
+                    <div class="bg-white rounded-lg shadow-custom p-6 opacity-0 transform translate-y-4 transition-all duration-700 delay-700">
+                        <div class="mb-4">
+                            <h3 class="text-xl font-semibold text-primary">🔖 Q8：有没有想对大家说的话？</h3>
+                        </div>
+                        <div class="pt-4 border-t border-gray-100">
+                            <p class="text-gray-700">想真心感谢每一位合作过的同事；用心做好每件事，不断提高自己的专业水平，才能更好地服务客户。我们一起加油！🌈</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 总结部分 -->
+        <section id="conclusion" class="mb-12">
+            <div class="max-w-5xl mx-auto">
+                <h2 class="text-3xl font-bold text-primary mb-8 border-l-4 border-secondary pl-4">总结</h2>
+                
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="bg-white rounded-lg shadow-custom p-6 hover:shadow-lg transition-custom" data-aos="fade-up" data-aos-delay="100">
+                        <div class="flex items-center mb-4">
+                            <div class="w-10 h-10 bg-secondary rounded-full flex items-center justify-center mr-4">
+                                <i class="fa fa-users text-white"></i>
+                            </div>
+                            <h3 class="text-xl font-semibold text-primary" style="color: rgb(161, 43, 43);">团队协作</h3>
+                        </div>
+                        <p class="text-gray-700">
+                            成功的销售不仅仅是个人的努力，更是团队协作的结果。从售前支持到项目交付，每个环节都需要团队成员的紧密配合。
+                        </p>
+                    </div>
+                    
+                    <div class="bg-white rounded-lg shadow-custom p-6 hover:shadow-lg transition-custom" data-aos="fade-up" data-aos-delay="200">
+                        <div class="flex items-center mb-4">
+                            <div class="w-10 h-10 bg-secondary rounded-full flex items-center justify-center mr-4">
+                                <i class="fa fa-clock-o text-white"></i>
+                            </div>
+                            <h3 class="text-xl font-semibold text-primary" style="color: rgb(219, 173, 94);">坚持不懈</h3>
+                        </div>
+                        <p class="text-gray-700">
+                            在面对客户的高要求和时间压力时，坚持不懈的精神是成功的关键。加班加点、克服困难，最终赢得客户的认可。
+                        </p>
+                    </div>
+                    
+                    <div class="bg-white rounded-lg shadow-custom p-6 hover:shadow-lg transition-custom" data-aos="fade-up" data-aos-delay="300">
+                        <div class="flex items-center mb-4">
+                            <div class="w-10 h-10 bg-secondary rounded-full flex items-center justify-center mr-4">
+                                <i class="fa fa-comments text-white"></i>
+                            </div>
+                            <h3 class="text-xl font-semibold text-primary" style="color: rgb(51, 124, 128);">有效沟通</h3>
+                        </div>
+                        <p class="text-gray-700">
+                            与客户多个部门的沟通，了解他们的需求和痛点，是项目成功的基础。良好的沟通能力能够帮助销售更好地理解客户需求。
+                        </p>
+                    </div>
+                    
+                    <div class="bg-white rounded-lg shadow-custom p-6 hover:shadow-lg transition-custom" data-aos="fade-up" data-aos-delay="400">
+                        <div class="flex items-center mb-4">
+                            <div class="w-10 h-10 bg-secondary rounded-full flex items-center justify-center mr-4">
+                                <i class="fa fa-heart text-white"></i>
+                            </div>
+                            <h3 class="text-xl font-semibold text-primary" style="color: rgb(66, 116, 166);">客户第一</h3>
+                        </div>
+                        <p class="text-gray-700">
+                            真正站在客户的角度考虑问题，及时响应客户反馈，尽力帮助客户解决问题，是赢得客户信任的关键。
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="bg-primary text-white py-8">
+        <div class="container mx-auto px-4">
+            <div class="max-w-3xl mx-auto text-center">
+                <div class="flex justify-center items-center mb-6">
+                    <img src="https://p26-flow-imagex-download-sign.byteimg.com/tos-cn-i-a9rns2rl98/81cd8bc5300147e1beddbf0a2ad6a3c5.png~tplv-a9rns2rl98-24:720:720.png?lk3s=8e244e95&amp;rcl=20260316115839CC7C131E6338C0E05D79&amp;rrcfp=8a172a1a&amp;x-expires=1774238320&amp;x-signature=h6DPKdrpNk%2BCdO8ym9QMsRrwl5Y%3D" alt="公司Logo" class="h-10 mr-3">
+                    <h2 class="text-2xl font-bold">客户第一，落地有声</h2>
+                </div>
+                <p class="text-gray-300 mb-6">
+                    一个人的讲标，一群人的坚守 - Angel的销售故事
+                </p>
+                <div class="flex justify-center space-x-4">
+                    <a href="#intro" class="text-gray-300 hover:text-white transition-custom">
+                        <i class="fa fa-arrow-up"></i> 返回顶部
+                    </a>
+                </div>
+                <div class="mt-8 text-sm text-gray-400">
+                    © 2026 eBest Mobile. 保留所有权利.
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        // 初始化AOS动画库
+        document.addEventListener('DOMContentLoaded', function() {
+            AOS.init();
+            
+            // 移动端菜单切换
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            
+            mobileMenuButton.addEventListener('click', function() {
+                mobileMenu.classList.toggle('hidden');
+            });
+            
+            // 微信气泡对话交互 - 顺序显示问题
+            const questionBubbles = document.querySelectorAll('.question-bubble');
+            const chatMessages = document.querySelectorAll('.chat-message');
+            
+            // 只显示第一个问题，隐藏其他问题
+            for (let i = 1; i < chatMessages.length; i++) {
+                chatMessages[i].classList.add('hidden');
+            }
+            
+            questionBubbles.forEach((bubble, index) => {
+                bubble.addEventListener('click', function() {
+                    const answerBubble = this.nextElementSibling;
+                    
+                    // 如果回答已经显示，则不做任何操作
+                    if (!answerBubble.classList.contains('hidden')) {
+                        return;
+                    }
+                    
+                    // 显示当前问题的回答
+                    answerBubble.classList.remove('hidden');
+                    
+                    // 如果还有下一个问题，则延迟显示下一个问题
+                    if (index < chatMessages.length - 1) {
+                        setTimeout(() => {
+                            chatMessages[index + 1].classList.remove('hidden');
+                        }, 500); // 延迟500毫秒显示下一个问题
+                    }
+                });
+            });
+            
+            // 滚动显示动画
+            const revealElements = document.querySelectorAll('.reveal-on-scroll');
+            
+            function checkReveal() {
+                const windowHeight = window.innerHeight;
+                const revealPoint = 150;
+                
+                revealElements.forEach(element => {
+                    const revealTop = element.getBoundingClientRect().top;
+                    const card = element.querySelector('div');
+                    
+                    if (revealTop < windowHeight - revealPoint) {
+                        card.classList.add('opacity-100', 'translate-y-0');
+                    }
+                });
+            }
+            
+            // 初始检查
+            checkReveal();
+            
+            // 滚动时检查
+            window.addEventListener('scroll', checkReveal);
+            
+            // 导航栏滚动效果
+            const navLinks = document.querySelectorAll('.nav-link');
+            const sections = document.querySelectorAll('section');
+            
+            window.addEventListener('scroll', function() {
+                let current = '';
+                
+                sections.forEach(section => {
+                    const sectionTop = section.offsetTop;
+                    const sectionHeight = section.clientHeight;
+                    
+                    if (pageYOffset >= (sectionTop - 200)) {
+                        current = section.getAttribute('id');
+                    }
+                });
+                
+                navLinks.forEach(link => {
+                    link.classList.remove('text-secondary');
+                    link.classList.add('text-primary');
+                    
+                    if (link.getAttribute('href').substring(1) === current) {
+                        link.classList.remove('text-primary');
+                        link.classList.add('text-secondary');
+                    }
+                });
+            });
+            
+            // 控制"开始阅读"按钮跳转位置，确保"个人介绍"标题可见
+            document.querySelector('a[href="#icebreaker"]').addEventListener('click', function(e) {
+                e.preventDefault(); // 阻止默认锚点跳转
+                const target = document.getElementById('icebreaker');
+                // 计算目标位置，预留导航栏高度（100px），确保标题完整显示
+                const targetTop = target.getBoundingClientRect().top + window.pageYOffset - 100;
+                // 平滑滚动到指定位置
+                window.scrollTo({
+                    top: targetTop,
+                    behavior: 'smooth'
+                });
+            });
+        });
+    </script>
+
+</body></html>
